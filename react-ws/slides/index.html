@@ -1,0 +1,1961 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>React Workshop</title>
+
+    <meta name="author" content="Vidar Ramdal">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/black.css" id="theme">
+    <script src="../tasks/libs/react/react.js"></script>
+    <script src="../tasks/libs/react/react-dom.js"></script>
+
+    <!-- Printing and PDF exports -->
+    <script>
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+<!--[if lt IE 9]>
+<script src="lib/js/html5shiv.js"></script>
+<![endif]-->
+
+<style>
+body {
+    font-family: 'Ubuntu';
+}
+ul li, .hints {
+    font-size: 0.7em !important;
+}
+
+.hints {
+    margin-top: 40px !important;
+    text-align: left !important;
+}
+
+pre {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 1 !important;
+}
+
+code {
+    line-height: 1.4 !important;
+}
+
+h2 {
+    text-transform: none !important;
+}
+
+@keyframes tiny-pulse {
+    0% {
+     transform: scale(1, 1);
+    }
+
+    50% {
+     transform: scale(1.01, 1.01);
+    }
+
+    100% {
+    transform: scale(1, 1);
+    }
+}
+
+@keyframes pulse {
+    0% {
+     transform: scale(1, 1);
+    }
+
+    50% {
+     transform: scale(1.2, 1.2);
+    }
+
+    100% {
+        transform: scale(1, 1);
+    }
+}
+
+.tiny-pulsate {
+    display: inline-block;
+    animation: tiny-pulse 1s ease-in-out infinite;
+}
+.pulsate {
+    display: inline-block;
+    animation: pulse 1s ease-in-out infinite;
+}
+</style>
+</head>
+
+<body>
+    <div class="reveal fade">
+        <div class="slides">
+            <section>
+                <img class="tiny-pulsate" src="imgs/react.svg" style="border: 0; background-color: transparent;"/>
+                <p>
+                    <small><a href="mailto:vidar.ramdal@webstep.no">vidar.ramdal@webstep.no</a></small>
+                </p>
+                <aside class="notes">
+                    Hei og velkommen til den første av to React-workshops.
+
+                    Intro med navn, bakgrunn.
+
+                    I kveld kommer jeg til å gi en introduksjon til React og dere kommer selv til å prøve det ut. ... neste slide
+                </aside>
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2>Agenda</h2>
+                <ul>
+                    <li>Overordnet React</li>
+                    <li>Konsepter i React (med oppgaver)</li>
+                    <li>JSX (med oppgaver)</li>
+                    <li>State og events (med oppgaver)</li>
+                    <li>Webpack (med oppgaver, hvis vi rekker)</li>
+                </ul>
+
+                <aside class="notes">
+                    <ul>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <div><img src="imgs/react-ui.png"/></div>
+                <div><img src="imgs/react-stats.png"/></div>
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2>React overordnet</h2>
+                <ul>
+                    <li>Kun view</li>
+                    <li>Konsist API</li>
+                    <li>Virtuell DOM</li>
+                    <li>Komponentbasert</li>
+                </ul>
+
+                <aside class="notes">
+                    <ul>
+                        <li>Kun view - betyr at biblioteket tar for seg ett ansvarsområde</li>
+                        <li>Konsist API - raskt å sette seg inn i grunnleggende React, surface på API-et er lite og dokumentasjonen er god</li>
+                        <li>Virtuell DOM - den største nytenkningen React kom med, og primærårsaken til at det er så raskt som det er. Kommer til å snakke en del om virtuell dom i workshopen.</li>
+                        <li>Komponentbasert - en react-applikasjon er bygget opp av enheter med hvert sitt konkrete ansvarsområde.</li>
+
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <img src="imgs/should-component-update.png" />
+
+                <aside class="notes">
+                    <ul>
+                        <li>La oss se på dette eksempelet. I React bygger man grensesnittet sitt som komponenter. En komponent kan være ProductTable, eller ProductRow. Disse komponentene vil ha hver sin virtuelle DOM-representasjon av et subsett av applikasjonen. Den virtuelle DOM-en mapper til HTML i den ekte DOM-en.</li>
+                        <li>La oss si at det skjer noen endringer i applikasjonen vi skal agere på. F.eks brukeren trykker på noe som fører til en hendelse, eller skriver noe i et tekstfelt, eller data kommer tilbake fra server</li>
+                        <li>React sjekker hvorvidt sin egen interne modell, den virtuelle DOM-en, er endret, og flusher kun de tingene som er endret til DOM</li>
+                        <li>Dette er essensen av virtuell DOM, og primært hva som gjør at React skiller seg ut fra tradisjonelle bibliotek. React er med dette i stand til å gjøre optimaliserte valg på hva som skal oppdateres.</li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <div style="margin: 0 auto; width: 60%; padding: 20px; background-color: #fff; color: #111; font-size: 0.6em">
+                    <div id="filterableproducttable-wrapper"></div>
+                </div>
+
+
+                <script src="filterableproducttable/out/my-app.js"></script>
+
+                <ul>
+                    <li id="filterableproducttable" class="fragment current-visible">FilterableProductTable (oransje): inneholder hele eksempelapplikasjonen. Utfører filtrering basert på input.</li>
+                    <li id="searchbar" class="fragment current-visible">SearchBar (blå): mottar input til filtrering</li>
+                    <li id="producttable" class="fragment current-visible">ProductTable (grønn): viser data</li>
+                    <li id="productcategoryrow" class="fragment current-visible">ProductCategoryRow (turkis): viser en heading for hver kategori</li>
+                    <li id="productrow" class="fragment current-visible">ProductRow (rød): viser en rad med informasjon om hvert produkt</li>
+                    <li class="fragment current-visible" style="display: none"></li>
+                </ul>
+
+                <script>
+                    (function () {
+                        var previous;
+
+                        function foo(name, borderColor, forceColor) {
+                            var elementsInTable = document.querySelectorAll('.' + name);
+                            var elementInList = document.getElementById(name);
+
+                            var border = '0';
+                            if (elementInList.className.match('current-fragment') || forceColor) {
+                                border = '3px solid ' + borderColor;
+                                previous = name;
+                            }
+                            elementsInTable.forEach(function (elementInTable) {
+                                elementInTable.style.border = border;
+                            });
+
+                        }
+                        document.addEventListener('keyup', function (e) {
+                            if (e.keyCode === 39 || e.keyCode === 37) {
+                                var forceColor = previous === 'productrow' && e.keyCode === 39;
+                                foo('filterableproducttable', 'orange', forceColor);
+                                foo('searchbar', 'blue', forceColor);
+                                foo('producttable', 'green', forceColor);
+                                foo('productcategoryrow', 'turquoise', forceColor);
+                                foo('productrow', 'red', forceColor);
+                            }
+                        });
+                    }());
+                </script>
+
+                <aside class="notes">
+                    <ul>
+                        <li>La oss se på et mer konkret eksempel. Dette er skrevet i React og er bygget opp som et komponent-tre</li>
+                        <li>Vis hvordan den fungerer</li>
+                        <li>.. så forklar de ulike komponentene</li>
+                        <li>Nevn av hver komponent har så få ansvarsområder som mulig for å fremme lesbarhet og mulighet for gjenbruk</li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <img style="width: 130%; max-width: inherit; margin-left: -150px" src="imgs/filterable-product-table.svg"/>
+                <aside class="notes">
+                    digraph G {
+                        "FilterableProductTable" -> "SearchBar"
+                        "FilterableProductTable" -> "ProductTable"
+                        "ProductTable" -> {"ProdCategoryRow1" "ProdRow1"}
+                        "ProductTable" -> "ProdRow2"
+                        "ProductTable" -> "ProdRow3"
+                        "ProductTable" -> "ProdCategoryRow2"
+                        "ProductTable" -> "ProdRow4"
+                        "ProductTable" -> "ProdRow5"
+                    }
+                </aside>
+            </section>
+
+                <!--
+            <section>
+                <h2>Verktøykasse workshop 1</h2>
+                <ul>
+                    <li>React</li>
+                    <li>JSX og ECMAScript 6</li>
+                    <li>Babel</li>
+                    <li>Node og npm</li>
+                    <li>Webpack (hvis vi rekker)</li>
+                </ul>
+                <aside class="notes">
+                    <ul>
+                        <li>Nevne hva man kommer til å lære av WS1</li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <h2>Verktøykasse workshop 2</h2>
+                <ul>
+                    <li>Redux</li>
+                    <li>Testing</li>
+                </ul>
+                <aside class="notes">
+                    <ul>
+                        <li>Nevne hva man kommer til å lære av WS2</li>
+                    </ul>
+                </aside>
+            </section>
+                1 min -->
+
+            <section>
+                <!-- 5 min -->
+                <h2>Konsepter</h2>
+
+                <ul>
+                    <li><code>React.createClass()</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;&nbsp;React-komponent</li>
+                    <li><code>React.createElement()</code>&nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;&nbsp;React-element</li>
+                    <li><code>ReactDOM.render()</code></li>
+                    <li>Props</li>
+                    <li>State</li>
+                    <li>Events</li>
+                </ul>
+                <aside class="notes">
+                    <ul>
+                        <li>createElement både med div og element via create class neste slide</li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <!-- 10 min -->
+                <h2 style="text-transform: none;">React.createElement()</h2>
+
+                <pre>
+                    <code class="language-jsx">
+React.createElement("div", null, "Hei på deg!");
+
+React.createElement(MyOwnHeaderComponent);
+                    </code>
+                </pre>
+                <aside class="notes">
+                    <ul>
+                    <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2 style="text-transform: none;">ReactDOM.render()</h2>
+
+                <pre>
+                    <code class="language-jsx">
+var myElement = React.createElement(...);
+
+ReactDOM.render(myElement, document.getElementById('my-dom-id'));
+                    </code>
+                </pre>
+                <aside class="notes">
+                    <ul>
+                        <li>Tar parametere: et ReactElement, og en DOM-node</li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <!-- 15 min -->
+                <h2>Oppgave 1 - Hello world</h2>
+
+                <p>Skriv en kort statisk tekst til DOM med React</p>
+
+                <p class="hints">Hint/forslag:</p>
+
+                <ul>
+                    <li>Ta utgangspunkt i <code>tasks/task-1/index.html</code> fra repoet <a href="https://github.com/vramdal/react-ws">https://github.com/vramdal/react-ws</a></li>
+                    <li>Åpne `tasks/task-1/index.html` i en nettleser for å se resultatet</li>
+                    <li>Dersom du vil se eksempler fra presentasjonen, åpne `open-presentation.html` i en nettleser</li>
+                    <li>Dokumentasjon:
+                        <ul>
+                            <li><a href="https://facebook.github.io/react/docs/react-api.html#createelement">React.createElement</a></li>
+                            <li><a href="https://facebook.github.io/react/docs/react-dom.html#render">ReactDOM.render</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <pre>
+                    <code class="language-jsx">
+React.createElement("div", null, "Hei på deg!")
+                    </code>
+                </pre>
+                <aside class="notes">
+                    Først individuelt, så felles gjennomgang på prosjektor
+                </aside>
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2 style="text-transform: none;">React.createClass()</h2>
+
+                <pre>
+                    <code class="language-jsx">
+var MyComponent = React.createClass({
+    render: function() {
+        return React.createElement(...)
+    }
+});
+
+var myElement = React.createElement(MyComponent);
+ReactDOM.render(...);
+                    </code>
+                </pre>
+                <aside class="notes">
+                    <ul>
+                        <li>createClass gir en funksjon. Vi ser at createElement også kan ta en klasse som parameter. I stad var det en streng som angai element-navn ("div")</li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <!-- 15 min -->
+                <h2>Oppgave 2 - React-komponent</h2>
+
+                <p>Lag React-komponenten "Header" som inneholder en statisk tekst - f.eks "Hei!"</p>
+
+                <p class="hints">Hint/forslag:</p>
+
+                <ul>
+                    <li>Fortsett på forrige oppgave, eller bruk <code>tasks/task-2/index.html</code></a></li>
+                    <li>Definer Header med <code>React.createClass({ ... })</code>.</li>
+                    <li>Header trenger kun én funksjon: <code>render() { ... }</code></li>
+                    <li><code>render()</code> må returnere ett enkelt React-element - gjerne tilsvarende det fra oppgave 1).</li>
+                    <li>Lag en instans av Header med <code>React.createElement(...)</code></li>
+                    <li>Render Header til DOM med <code>ReactDOM.render({ ... })</code></li>
+                </ul>
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2>Props</h2>
+
+                <pre>
+                    <code class="language-jsx">
+React.createElement(MyOwnHeaderComponent, {yourName: "Vidar"});
+                    </code>
+                </pre>
+
+                <pre>
+                    <code class="language-jsx">
+var MyOwnHeaderComponent = React.createClass({
+    render: function () {
+        var name = this.props.yourName;
+        // ...
+    }
+});
+                    </code>
+                </pre>
+                <aside class="notes">
+                    <ul>
+                        <li>Props sendes nedover i komponent-treet</li>
+                        <li>Props tilsvarer hva argumenter gjør til funksjoner</li>
+                        <li>Props er sentralt i React - komponenter/funksjoner tar inn data og returnerer et view</li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <!-- 10 min -->
+                <h2>Oppgave 3 - props</h2>
+
+                <p>Vis "Hei, &lt;ditt navn&gt;!" i stedet for den statiske teksten</p>
+
+                <p class="hints">Hint/forslag:</p>
+
+                <ul>
+                    <li>Send med navnet ditt til Header og bruk <code>this.props</code> inne i Header til å lese verdien</li>
+                </ul>
+                <pre>
+                    <code class="language-jsx">
+var MyOwnHeaderComponent = React.createClass({
+    render: function () {
+        var name = this.props.yourName;
+        // ...
+    }
+});
+
+React.createElement(MyOwnHeaderComponent, {yourName: 'Ole Brumm'});
+                    </code>
+                </pre>
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2>React root</h2>
+
+                <p><code>ReactDOM.render(...)</code> krever ett (og kun ett) element</p>
+
+                <img style="width: 50%" src="imgs/div-header-movielist.svg" />
+
+                <aside class="notes">
+                    http://webgraphviz.com/
+
+                    digraph G {
+                        div -> Header;
+                        div -> MovieList;
+                    }
+                </aside>
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2>React root - løst med wrapper</h2>
+                <pre>
+                    <code class="language-jsx">
+var myElem = React.createElement(
+    'div',
+    null,
+    React.createElement('p', null, 'First paragraph'),
+    React.createElement('p', null, 'Second paragraph')
+);
+
+ReactDOM.render(myElem, ...)
+                    </code>
+                </pre>
+                <aside class="notes">
+                    Ref. dokumentasjon: React.createElement(
+                    type,
+                    [props],
+                    [...children]
+                    )
+                    https://facebook.github.io/react/docs/react-api.html#createelement
+                </aside>
+            </section>
+
+            <section>
+                <!-- 15 min -->
+                <h2>Oppgave 4 - Liste over filmer</h2>
+
+                <p>Lag en ny komponent - MovieList - og render den til DOM</p>
+
+                <p class="hints">Hint/forslag:</p>
+
+                <ul>
+                    <li>Innhold i komponenten kan foreløpig være en tom tekst</li>
+                    <li><code>ReactDOM.render(...)</code> krever én rot-komponent, så for å inkludere både Header og MovieList må de wrappes i f.eks en <code>&lt;div&gt;</code>.</li>
+                </ul>
+                <img style="width: 50%" src="imgs/div-header-movielist.svg" />
+
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2>JavaScript i <code>render()</code></h2>
+
+                <pre>
+                    <code class="language-jsx">
+var favoriteHerbs = ['cilantro', 'basil', 'parsley'];
+
+React.createClass({
+    render: function () {
+        return React.createElement('ul', null, favoriteHerbs.map(function (herb) {
+            return React.createElement('li', {key: herb}, herb);
+        }));
+    }
+});
+                    </code>
+                    <ul>
+                        <li>Dokumentasjon: <a href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/map">map</a></li>
+                    </ul>
+                </pre>
+                <aside class="notes">
+                    <ul>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <!-- 15 min -->
+                <h2>Oppgave 5</h2>
+
+                <p>Vis en liste over filmer du liker i MovieList</p>
+
+                <p class="hints">Hint/forslag:</p>
+
+                <ul>
+                    <li>Filmlista kan være et hardkodet array i komponenten</li>
+                    <li>Bruk <code>.map()</code> til å iterere over arrayet</li>
+                    <li>Bruk <code>&lt;ul&gt;</code> til lista. Navnet på hver film vises i en <code>&lt;li&gt;</code>.</li>
+                </ul>
+
+            </section>
+
+
+            <section>
+                <!-- 5 min -->
+                <h2>JSX</h2>
+
+                <pre>
+                    <code class="language-javascript">
+var Header = React.createClass({
+    render: function () {
+        return React.createElement(
+            "p",
+            null,
+            "Hei " + this.props.yourName
+        );
+    }
+});
+                    </code>
+                </pre>
+
+                <pre>
+                    <code class="language-jsx">
+class Header extends React.Component {
+    render() {
+        return &lt;p&gt;Hei {this.props.yourName}&lt;/p&gt;;
+    }
+}
+                    </code>
+                </pre>
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2>JSX - innsending av props</h2>
+
+                <pre>
+                    <code class="language-jsx">
+class Header extends React.Component {
+    render() {
+        return &lt;p&gt;Hei {this.props.yourName}&lt;/p&gt;;
+    }
+}
+
+ReactDOM.render(
+    &lt;Header yourName="Vidar"/&gt;,
+    document.getElementById('my-app')
+);
+                    </code>
+                </pre>
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2>JSX - JavaScript i <code>render()</code></h2>
+
+                <pre>
+                    <code class="language-jsx">
+class MyHerbs extends React.Component {
+    render() {
+        return (
+            &lt;ul&gt;
+                {this.props.herbs.map(function (herb) {
+                    return &lt;li&gt;{herb}&lt;/li&gt;;
+                })}
+            &lt;/ul&gt;
+        );
+    }
+}
+
+const favoriteHerbs = ['cilantro', 'parsley'];
+
+ReactDOM.render(
+    &lt;MyHerbs herbs={favoriteHerbs}/&gt;,
+    document.getElementById('my-app')
+);
+                    </code>
+                </pre>
+            </section>
+
+            <section>
+                <!-- 1 min -->
+                <img src="imgs/one-does-not-simply.jpg" />
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <!-- 4 min -->
+                <div style="display: flex; width: 100%; height: 200px; margin-left: -50px; justify-content: space-between; ">
+                    <div style="height: 200px; margin-top: -50px; margin-right: 40px;">
+                        <img src="imgs/es6.png" style="max-width: 150px;"/>
+                        <img src="imgs/jsx.png" style="max-width: 150px;"/>
+                        <img src="imgs/asyncawait.png" style="max-width: 150px;"/>
+                    </div>
+                    <div style="font-size: 3em; margin-top: 30px; text-align: center;">→</div>
+                    <div>
+                        <img src="imgs/babel.png" style="max-width: 400px; margin: 0 50px;"/>
+                    </div>
+                    <div style="font-size: 3em; margin-top: 30px; text-align: center;">→</div>
+                    <div>
+                        <img src="imgs/es5.png" style="margin-left: 40px; max-width: 120px; margin-top: 40px;"/>
+                    </div>
+                </div>
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <!-- 2 min -->
+                <h2>Hvordan bruke Babel?</h2>
+
+                <img src="imgs/node-logo.svg" style="background-color: #fff" />
+
+                <aside class="notes">
+                    <ul>
+                        <li>Forklar node - javascript-motoren til Chrome som er skilt ut som eget, kjørbart produkt</li>
+                    </ul>
+                </aside>
+
+            </section>
+
+            <section>
+                <!-- 2 min -->
+                <h2>Hvordan bruke Babel?</h2>
+
+                <img src="imgs/npm-scrshot.png" />
+
+                <aside class="notes">
+                    <ul>
+                        <li>Forklar npm - pakkemanager for Node-moduler</li>
+                    </ul>
+                </aside>
+
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2>Hvordan bruke Babel?</h2>
+
+                <ol>
+                    <li>Installer node</li>
+                    <li>Kjør <code>npm init</code></li>
+                    <li>Installer babel med <code>npm install babel --save-dev</code></li>
+                    <li>Et par linjer i <code>.babelrc</code></li>
+                </ol>
+
+                <p>Good to go, du kan nå kjøre babel med node!</p>
+
+                <aside class="notes">
+                    <ul>
+                        <li>Vis npm, node_modules. Forklar --save som skriver til package.json og årsaken</li>
+                        <li>Ikke sjekk inn node_modules</li>
+                        <li>Vis feilmeldinger (f.eks unterminated JSX)</li>
+                    </ul>
+                </aside>
+
+            </section>
+
+            <section>
+                <!-- 15 min -->
+                <h2>Oppgave 6 - Babel</h2>
+
+                <p>Skriv om React-komponentene dine til JSX</p>
+
+                <p class="hints">Hint/forslag:</p>
+                <ul>
+                <li>Ta utgangspunkt i tasks/task-6-babel</li>
+                <li>Kjør <code>npm install</code> for å installere avhengigheter</li>
+                <li>Kjør <code>npm run build</code> for å transpilere</li>
+                </ul>
+
+                <pre>
+                    <code class="language-jsx">
+class Header extends React.Component {
+    render() {
+        return <p>Hei {this.props.name}</p>;
+    }
+}
+                    </code>
+                </pre>
+
+                <aside class="notes">
+                    Vis package.json, og build-kommandoen der
+                </aside>
+
+            </section>
+
+
+            <section>
+                <h2>Nyttige lenker</h2>
+
+                <ul>
+                    <li>
+                        <a href="https://facebook.github.io/react/docs/getting-started.htm">
+                            https://facebook.github.io/react/docs/getting-started.html
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://facebook.github.io/react/docs/thinking-in-react.html">
+                            https://facebook.github.io/react/docs/thinking-in-react.html
+                        </a>
+
+                    </li>
+                    <li>
+                        <a href="https://github.com/facebookincubator/create-react-app">
+                            https://github.com/facebookincubator/create-react-app
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://courses.reactjsprogram.com/courses/reactjsfundamentals">
+                            http://courses.reactjsprogram.com/courses/reactjsfundamentals
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript">
+                            https://developer.mozilla.org/en-US/docs/Web/JavaScript
+                        </a>
+                    </li>
+                </ul>
+
+            </section>
+
+            <section>
+                <img class="tiny-pulsate" src="imgs/react.svg" style="border: 0; background-color: transparent;"/>
+                <p>
+                    <small><a href="mailto:vidar.ramdal@webstep.no">vidar.ramdal@webstep.no</a></small>
+                </p>
+                <aside class="notes">
+                    Hei og velkommen til den andre og siste, for denne gang, React-workshops.
+
+                    Intro med navn, bakgrunn.
+
+                    Intro for kvelden...
+                </aside>
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2>Agenda</h2>
+                <ul>
+                    <li>Recap</li>
+                    <li>Fortsette med state og events (med oppgave)</li>
+                    <li>Webpack (med oppgave)</li>
+                    <li>Redux (med oppgaver)</li>
+                </ul>
+
+                <aside class="notes">
+                    <ul>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2>Recap</h2>
+                <ul>
+                    <li>React-element</li>
+                    <li>React-komponent</li>
+                    <li>Props</li>
+                    <li>JSX</li>
+                </ul>
+
+                <aside class="notes">
+                    <ul>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <!-- 10 min -->
+                <h2>Events</h2>
+
+                <pre>
+                    <code class="language-jsx">
+class MyComponent extends React.Component {
+    handleChange(event) { // ... }
+    handleClick(event) { // ... }
+
+    render() {
+        const {myValue} = this.state;
+        return (
+            &lt;div&gt;
+                &lt;input
+                    value={myValue}
+                    onChange={this.handleChange.bind(this)}/&gt;
+                &lt;button
+                    onClick={this.handleClick.bind(this)}&gt;Add movie&lt;/button&gt;
+            &lt;/div&gt;
+        );
+    }
+}
+                    </code>
+                </pre>
+
+            </section>
+
+            <section>
+                <!-- 10 min -->
+                <h2>State</h2>
+
+                <pre>
+                    <code class="language-jsx">
+class MyComponent extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            myValue: ''
+        };
+    }
+
+    handleChange(event) {
+        this.setState({
+            myValue: event.target.value
+        });
+    }
+
+    render() { // som forrige slide }
+}
+                    </code>
+                </pre>
+
+            </section>
+
+            <section>
+                <!-- 3 min -->
+                <h2>State - reconciliation</h2>
+
+                <img src="imgs/should-component-update.png" />
+
+                <aside class="notes">
+                    <ul>
+                        <li>O(n) kjøretid for oppdateringer</li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <pre>
+                    <code class="language-javascript">
+cd react-ws/tasks/task-7-state-events
+npm install
+npm run build
+                    </code>
+                </pre>
+
+
+            </section>
+
+            <section>
+                <!-- 25 min -->
+                <h2>Oppgave 7 - state og events</h2>
+
+                <p>Implementer mulighet for å legge til filmer</p>
+
+                <ol style="list-style-type: lower-alpha; font-size: 25px;">
+                    <li>Sett opp initiell state i <code>constructor()</code>. Initiell state kan inkludere både lista med filmer og tekst i inputfeltet</li>
+                    <li>Bruk <code>this.setState({ ... })</code> i <code>handleChange()</code> til å oppdatere state med inputfelt-verdi</li>
+                    <li>Bruk <code>this.setState({ ... })</code> i <code>handleClick()</code> til å oppdatere state med ny film</li>
+                    <li>Bonusoppgave: tøm inputfeltet når en film er lagt til</li>
+                    <li>Bonusoppgave: disable knapp dersom inputfeltet er tomt</li>
+                </ol>
+
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2>Moduler</h2>
+
+<h6 style="text-transform: none; text-align: left;"><code>my-component.js</code></h6>
+                <pre>
+                    <code class="language-javascript">
+import React from 'react';
+class MyComponent = extends React.Component { ... }
+
+export default MyComponent;
+                    </code>
+                </pre>
+
+<h6 style="text-transform: none; text-align: left;"><code>my-app.js</code></h6>
+                <pre>
+                    <code class="language-javascript">
+import React from 'react';
+import ReactDOM from 'react-dom';
+import MyComponent from './my-component';
+                    </code>
+                </pre>
+
+            </section>
+
+            <section>
+                <!-- 5 min -->
+                <h2>Webpack</h2>
+
+                <img style="background-color: white;" src="imgs/what-is-webpack.png" />
+                <aside class="notes">
+                    <ul>
+                        <li>Kun browser</li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <h2>Webpack kan fikse</h2>
+
+                <ul>
+                    <li class="fragment">Bundling - slå sammen flere filer til én</li>
+                    <li class="fragment">Transpilering av JavaScript via Babel</li>
+                    <li class="fragment">Kompilering av SASS, LESS, Markdown</li>
+                    <li class="fragment">Linting</li>
+                    <li class="fragment">...</li>
+                </ul>
+
+            </section>
+
+            <section>
+                <pre>
+                    <code class="language-javascript">
+cd react-ws/tasks/task-8-webpack
+npm install
+                    </code>
+                </pre>
+
+
+            </section>
+
+            <section>
+                <!-- ??? min -->
+                <h2>Oppgave 8 - Webpack</h2>
+
+                <p>Trekk MovieList ut i egen fil, og bruk Webpack til å bundle applikasjonen</p>
+
+                <p class="hints">Hint/forslag:</p>
+
+                <ul>
+                    <li>Ta utgangspunkt i <code>tasks/task-8-webpack</code></li>
+                    <li>Lag en ny fil, <code>movie-list.js</code></li>
+                    <li>Bruk <code>npm run watch</code> mens du utvikler</li>
+                    <li>Importer og render den nye fila i <code>tasks/task-8-webpack/src/app.js</code></li>
+                    <li>Bruk <code>header.js</code> som eksempel hvis du står fast</li>
+                </ul>
+
+            </section>
+
+            <section>
+                <img src="imgs/redux-logo-title-dark.png" style="background-color: #fff"/>
+            </section>
+
+            <style type="text/css">
+                .state-app-example-wrapper {
+                    width: 840px !important;
+                    padding: 20px !important;
+                    background-color: #fff;
+                }
+                .state-app-example {
+                    margin: 0 auto !important;
+                    width: 800px !important;
+                    height: 350px !important;
+                    border: 1px solid black !important;
+                    position: relative !important;
+                    padding: 20px !important;
+                }
+
+                .state-app-example .rounded {
+                    border: 6px solid green !important;
+                    border-radius: 25px;
+                }
+
+                .state-app-example .loader {
+                    position: absolute !important;
+                    top: 200px !important;
+                    left: 370px !important;
+                }
+
+                .state-app-example .cart {
+                    border: 1px solid blue !important;
+                    text-align: right;
+                    color: black !important;
+                }
+
+                .state-app-example .error-message {
+                    margin-top: 10px !important;
+                    border: 1px solid purple !important;
+                    color: black !important;
+                    background-color: pink !important;
+                }
+
+                .state-app-example .cart .num-items {
+                    position: absolute;
+                    top: 40px;
+                    right: 90px;
+                }
+
+                .state-app-example table {
+                    margin-top: 10px !important;
+                }
+
+                .state-app-example td, .state-app-example th {
+                    color: black !important;
+                    font-size: 30px;
+                    border-bottom: 1px solid red !important;
+                }
+
+                .state-app-example tr {
+                    border: 1px solid red !important;
+                }
+            </style>
+
+            <section>
+                <h2>Motivasjon med et eksempel</h2>
+
+                <p>Marie skal kjøpe avokado</p>
+            </section>
+
+            <section>
+                <div class="state-app-example-wrapper">
+                    <div class="state-app-example">
+                        <img class="loader" src="imgs/hourglass.svg" />
+                    </div>
+                </div>
+                <p>Applikasjonen starter</p>
+                <ul>
+                    <li>Data lastes asynk</li>
+                    <li>Spinner vises</li>
+                </ul>
+            </section>
+
+            <section>
+                <div class="state-app-example-wrapper">
+                    <div class="state-app-example">
+                        <div>
+                            <div class="cart">
+                                <img src="imgs/cart.png" /><span class="num-items">(0)</span>
+                            </div>
+                            <table>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Pris</th>
+                                    <th>På lager</th>
+                                </tr>
+                                <tr>
+                                    <td>Avokado</td>
+                                    <td>150kr</td>
+                                    <td>5 stk</td>
+                                </tr>
+                                <tr>
+                                    <td>Palme</td>
+                                    <td>160kr</td>
+                                    <td>1 stk</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <p>Data lastet ferdig</p>
+                <ul>
+                    <li>Produkter vises med navn og lagerstatus</li>
+                    <li>Spinner stoppes</li>
+                </ul>
+            </section>
+
+            <section>
+                <div class="state-app-example-wrapper">
+                    <div class="state-app-example">
+                        <div>
+                            <div class="cart">
+                                <img src="imgs/cart.png"/><span class="num-items">(1)</span>
+                            </div>
+                            <table>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Pris</th>
+                                    <th>På lager</th>
+                                </tr>
+                                <tr>
+                                    <td>Avokado</td>
+                                    <td>150kr</td>
+                                    <td>4 stk</td>
+                                </tr>
+                                <tr>
+                                    <td>Palme</td>
+                                    <td>160kr</td>
+                                    <td>1 stk</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <p>Marie legger avokado til handlekurv.</p>
+                <ul>
+                    <li>Går et kall til server for å lagre handlekurven</li>
+                    <li>Handlekurv-ikon oppdateres optimistisk</li>
+                    <li>Lagerstatus oppdateres optimistisk</li>
+                </ul>
+            </section>
+
+            <!--
+            <section>
+                <div class="state-app-example-wrapper">
+                    <div class="state-app-example">
+                        <div>
+                            <div class="cart">
+                                <img src="imgs/cart.png"/><span class="num-items rounded">&nbsp;&nbsp;(2)&nbsp;&nbsp;</span>
+                            </div>
+                            <table>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Pris</th>
+                                    <th>På lager</th>
+                                </tr>
+                                <tr>
+                                    <td>Avokado</td>
+                                    <td>150kr</td>
+                                    <td>3 stk</td>
+                                </tr>
+                                <tr>
+                                    <td>Palme</td>
+                                    <td>160kr</td>
+                                    <td>1 stk</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <p>Marie ser at hun la til en avokado for mye</p>
+            </section>
+
+            <section>
+                <div class="state-app-example-wrapper">
+                    <div class="state-app-example">
+                        <div>
+                            <div class="cart">
+                                <img src="imgs/cart.png"/><span class="num-items">(1)</span>
+                            </div>
+                            <table>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Pris</th>
+                                    <th>På lager</th>
+                                </tr>
+                                <tr>
+                                    <td>Avokado</td>
+                                    <td>150kr</td>
+                                    <td>4 stk</td>
+                                </tr>
+                                <tr>
+                                    <td>Palme</td>
+                                    <td>160kr</td>
+                                    <td>1 stk</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <p>Marie fjerner en avokado fra handlekurven</p>
+
+                <ul>
+                    <li>Går et kall til server for å frigjøre produktet fra handlekurven</li>
+                    <li>Handlekurv-ikon oppdateres optimistisk</li>
+                    <li>Lagerstatus oppdateres optimistisk</li>
+                </ul>
+            </section>
+            -->
+
+            <section>
+                <div class="state-app-example-wrapper">
+                    <div class="state-app-example">
+                        <div>
+                            <div class="cart">
+                                <img src="imgs/cart.png"/><span class="num-items">(2)</span>
+                            </div>
+                            <table>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Pris</th>
+                                    <th>På lager</th>
+                                </tr>
+                                <tr>
+                                    <td>Avokado</td>
+                                    <td>150kr</td>
+                                    <td>4 stk</td>
+                                </tr>
+                                <tr>
+                                    <td>Palme</td>
+                                    <td>160kr</td>
+                                    <td>0 stk</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <p>Marie legger en palme til handlekurven.</p>
+                <ul>
+                    <li>Går et kall til server for å lagre handlekurven</li>
+                    <li>Handlekurv-ikon oppdateres optimistisk</li>
+                    <li>Lagerstatus oppdateres optimistisk</li>
+                </ul>
+            </section>
+
+            <section>
+                <div class="state-app-example-wrapper">
+                    <div class="state-app-example">
+                        <div>
+                            <div class="cart">
+                                <img src="imgs/cart.png"/><span class="num-items">(1)</span>
+                            </div>
+                            <table>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Pris</th>
+                                    <th>På lager</th>
+                                </tr>
+                                <tr>
+                                    <td>Avokado</td>
+                                    <td>150kr</td>
+                                    <td>4 stk</td>
+                                </tr>
+                                <tr>
+                                    <td>Palme</td>
+                                    <td>160kr</td>
+                                    <td>1 stk</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <p>Marie angrer før kallet er gjennomført, og fjerner palmen fra handlekurven.</p>
+                <ul>
+                    <li>Går et kall til server for å lagre handlekurven</li>
+                    <li>Handlekurv-ikon oppdateres optimistisk</li>
+                    <li>Lagerstatus oppdateres optimistisk</li>
+                </ul>
+            </section>
+
+            <section>
+                <div class="state-app-example-wrapper">
+                    <div class="state-app-example">
+                        <div>
+                            <div class="cart">
+                                <img src="imgs/cart.png"/><span class="num-items">(1)</span>
+                            </div>
+                            <div class="error-message">
+                                <p>Noe galt skjedde!</p>
+                            </div>
+                            <table>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Pris</th>
+                                    <th>På lager</th>
+                                </tr>
+
+                                <tr>
+                                    <td>Avokado</td>
+                                    <td>150kr</td>
+                                    <td>4 stk</td>
+                                </tr>
+                                <tr>
+                                    <td>Palme</td>
+                                    <td>160kr</td>
+                                    <td>0 stk</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <p>Kallet feilet</p>
+                <ul>
+                    <li class="fragment fade-up">Feilmelding vises</li>
+                    <li class="fragment fade-up">Lagerstatus oppdateres</li>
+                    <li class="fragment fade-up">Handlekurv-ikon må egentlig oppdateres - bug!</li>
+                </ul>
+                <aside class="notes">
+                    <li>Hvilken komponent styrer hvem?</li>
+                </aside>
+            </section>
+
+            <!--
+            <section>
+                <h2>Flux - motivasjon</h2>
+
+                <ul>
+                    <li>Deterministisk render av views</li>
+                    <li>Kontroll over state</li>
+                </ul>
+
+            </section>
+
+            <section>
+                <h2>Flux</h2>
+
+                <img src="imgs/flux.png"/>
+
+            </section>
+
+
+            <section>
+                <h2>Fluximplementasjoner?</h2>
+
+                <span class="fragment">Fluxxor</span>
+                <span class="fragment" style="color: #ffd095">Flummox</span>
+                <span class="fragment" style="color: #939400">Fluxible</span>
+                <span class="fragment" style="color: #bdbf00">Fluxy</span>
+                <span class="fragment" style="color: #dbdd00">McFly</span>
+                <span class="fragment" style="color: #f9961c">Reflux</span>
+                <span class="fragment" style="color: #dd7a00">Alt</span>
+
+                <div class="fragment">
+                    <img src="imgs/yyouno.png"/>
+                    <div style="color: #ff0043">Flux this</div>
+                </div>
+
+            </section>
+
+            <section>
+
+            <img src="imgs/redux-live-react.png"/>
+
+
+            </section>
+            -->
+
+            <section>
+                <h2>Motivasjon for Redux</h2>
+
+                <ul>
+                    <li>Deterministisk rendering av views</li>
+                    <li>Sentralisert kontroll over state</li>
+                    <li>Forenkle asynkrone hendelser</li>
+                    <li>Mindre boilerplate</li>
+                </ul>
+
+                <aside class="notes">
+                    <ul>
+                        <li>Sentralisert state, nyttig spesielt for state som skal deles</li>
+                        <li>Raskere utvikling</li>
+                        <li>Færre bugs</li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <h2>Deterministisk rendering av views</h2>
+                <p style="font-style: italic; font-size: 200%">
+                    view = <span style="font-size: larger">⨍</span>(state)
+                </p>
+            </section>
+
+            <section>
+                <h2>Prinsipper</h2>
+
+                <ol>
+                    <li>State lagres i én enkelt store</li>
+                    <li>State i store er read-only</li>
+                </ol>
+
+
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <h2>Konsepter</h2>
+
+                <ol>
+                    <li>Store</li>
+                    <li>Actions</li>
+                    <li>Reducers</li>
+                </ol>
+
+                <aside class="notes">
+                    <ul>
+                        <li>todo: Her må forklaring av pure functions inn</li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <h2>Redux-modellen</h2>
+                <p>
+                <div style="width: 1024px; height: 400px; margin: 10px; position: relative;"><iframe allowfullscreen frameborder="0" style="width:640px; height:480px" src="https://www.lucidchart.com/documents/embeddedchart/c3ae3b2d-1b86-48df-9848-698787abefe4" id="MVusj__P-YBG"></iframe></div>
+                <br/>
+                <a href="https://www.lucidchart.com/documents/view/c3ae3b2d-1b86-48df-9848-698787abefe4" target="_blank">Popout</a> -
+                <a href="https://www.lucidchart.com/documents/edit/c3ae3b2d-1b86-48df-9848-698787abefe4#">Rediger</a>
+                </p>
+            </section>
+
+<!--
+            <section>
+                <pre>
+                    <code class="language-javascript">
+{
+    movies: [
+        {id: 1, name: 'Blade Runner'},
+        {id: 2, name: 'Song Of The Sea'},
+        {id: 3, name: 'Megashark vs. Giant Octopus'}
+    ],
+    cinemas: [
+        {id: 1, name: 'Cinemateket', runningMovies: [1, 2]},
+        {id: 2, name: 'Ringen', runningMovies: [3]}
+    ]
+}
+                    </code>
+                </pre>
+
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+-->
+
+            <section>
+                <pre>
+                    <code class="language-javascript">
+{
+    movies: {
+        list: [
+            'Blade Runner',
+            'Song Of The Sea',
+            'Mud'
+        ],
+        inputValue: 'Star Wa'
+    }
+}
+                    </code>
+                </pre>
+
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <h2>Actions</h2>
+
+                <pre>
+                    <code class="language-javascript">
+{
+    type: 'ADD_MOVIE',
+    payload: {
+        name: 'Kung Fury'
+    }
+}
+                    </code>
+                </pre>
+
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <h2>Actions</h2>
+
+                <pre>
+                    <code class="language-javascript">
+{
+    type: 'SET_INPUT_VALUE',
+    payload: {
+        value: 'Star Wa'
+    }
+}
+                    </code>
+                </pre>
+
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <h2>Reducers</h2>
+
+                <pre>
+                    <code class="language-javascript">
+const initialState = {
+    list: [],
+    inputValue: ''
+};
+function movieReducer(state = initialState, action) {
+    switch (action.type) {
+        case 'ADD_MOVIE':
+            const movieName = action.payload.name;
+            // todo: Returner komplett state med den nye filmen inkludert
+            return {};
+        case 'SET_INPUT_VALUE':
+            const inputValue = action.payload.value;
+            // todo: Returner komplett state med oppdatert verdi for inputValue
+            return {};
+        default:
+            return state;
+    }
+}
+                    </code>
+                </pre>
+
+                <aside class="notes">
+                    <ul>
+                        <li>Noe om pure functions!</li>
+                        <li>Immutability! Altså må arrays og objekter lages nye</li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <pre>
+                    <code class="language-javascript">
+cd react-ws/tasks/task-9-redux
+npm install
+npm run test:watch
+                    </code>
+                </pre>
+            </section>
+
+            <section>
+                <h2>Oppgave 9a - reducer og actions</h2>
+
+                <p>
+                    Implementer reducer for action <code>SET_INPUT_VALUE</code>
+                </p>
+
+                <p class="hints">Hint/forslag:</p>
+
+                <ul>
+                    <li>Ta utgangspunkt i <code>movie-reducer.js</code></li>
+                    <li>Kjør tester med <code>npm run test:watch</code></li>
+                    <li>Gjør én og én test grønn i <code>movie-reducer-set-input-value.test.js</code></li>
+                </ul>
+
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <h2>Oppgave 9b - reducer og actions</h2>
+
+                <p>
+                    Implementer reducer for action <code>ADD_MOVIE</code>
+                </p>
+
+                <p class="hints">Hint/forslag:</p>
+
+                <ul>
+                    <li>Utvid <ode>movie-reducer.js</code></li>
+                    <li>Testene i <code>movie-reducer-add-movie.test.js</code> er kommentert ut. Fjern utkommenteringen så de blir aktivert</li>
+                    <li>Kjør tester med <code>npm run test:watch</code></li>
+                    <li>Gjør én og én test grønn</li>
+                </ul>
+
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <style type="text/css">
+                    .rounded-foo {
+                       background-color: #fff;
+                       color: black;
+                       padding: 10px !important;
+                       border: 3px solid black;
+                       border-radius: 15px;
+                    }
+                </style>
+
+                <h2>Hvordan henger dette sammen?</h2>
+
+                <span class="rounded-foo">Action</span>
+                →
+                <span class="rounded-foo">reducer(s)</span>
+                →
+                <span class="rounded-foo">oppdatert state</span>
+                →
+                <span class="rounded-foo">re-render</span>
+
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <img src="imgs/redux-flow.gif" style="background-color: white"/>
+
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <h2>Redux.createStore()</h2>
+
+                <pre>
+                    <code class="language-javascript">
+var myStore = Redux.createStore(myReducer);
+
+myStore.getState();
+myStore.subscribe(callback);
+myStore.dispatch(action);
+                    </code>
+                </pre>
+
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+            <h2>React&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⇆&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <span class="pulsate">?</span>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⇆&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Redux</h2>
+
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <img src="imgs/react-redux.png"/>
+
+                <aside class="notes">
+                    <ul>
+                        <li></li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section>
+                <h2>... prøver oss selv først</h2>
+
+                <ol>
+                    <li>Lag en store</li>
+                    <li>Lag en react-komponent som tar i mot data fra store</li>
+                    <li>Render komponenten</li>
+                    <li>Re-render komponenten når store endres</li>
+                </ol>
+
+                <aside class="notes">
+import React, {Component} from 'react';
+import ReactDOM from 'react-dom';
+import {createStore} from 'redux';
+
+const initialState = 0;
+function myReducer(state = initialState, action) {
+    switch (action.type) {
+        case 'INCREMENT':
+            return state + 1;
+        default:
+            return state;
+    }
+}
+const myStore = createStore(myReducer);
+
+class MyCounter extends Component {
+    handleClick() {
+        myStore.dispatch({
+            type: 'INCREMENT'
+        })
+    }
+    render() {
+        return (
+            <div>
+                Counter: {this.props.counter}
+
+                <button onClick={this.handleClick.bind(this)}>Increment counter</button>
+            </div>
+        );
+    }
+}
+
+function render() {
+    const counter = myStore.getState();
+    ReactDOM.render(<MyCounter counter={counter}/>, document.getElementById('my-app'));
+}
+
+render();
+
+myStore.subscribe(render);
+
+window.myStore = myStore;
+                </aside>
+            </section>
+
+            <section>
+                <h2><code>react-redux</code></h2>
+
+                <ul>
+                    <li><code>connect()</code></li>
+                    <li><code>&lt;Provider&gt;</code></li>
+                </ul>
+
+
+                <aside class="notes">
+                </aside>
+            </section>
+
+            <section>
+                <div>
+                    <div style="width: 50%; float: left;">
+                        <p>Presentasjons-komponenter</p>
+
+                        <ul>
+                            <li>Styrer hvordan ting ser ut</li>
+                            <li>Mottar data og callbacks via props</li>
+                            <li>Endrer ikke data selv</li>
+                        </ul>
+                    </div>
+
+                    <div style="width: 50%; float: left;">
+                        <p>Container-komponenter</p>
+
+                        <ul>
+                            <li>Håndterer data</li>
+                            <li>Har tilgang på Redux-store</li>
+                            <li>Dispatcher actions</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </section>
+
+            <section>
+                <h2><code>react-redux</code></h2>
+
+                <pre>
+                    <code class="language-javascript">
+// app.js
+import React from 'react';
+import {createStore} from 'redux';
+import {Provider} from 'react-redux';
+
+const myStore = createStore(...);
+class App extends React.Component {
+    render() {
+        return (
+            &lt;Provider store={myStore}&gt;
+                // ...
+            &lt;/Provider&gt;
+        )
+    }
+}
+                    </code>
+                </pre>
+
+                <aside class="notes">
+                </aside>
+            </section>
+
+            <section>
+                <h2><code>react-redux</code></h2>
+
+                <pre>
+                    <code class="language-javascript">
+// movie-list-container.js
+import {connect} from 'react-redux';
+import MovieList from './movie-list';
+class MovieListContainer extends React.Component {
+    render() {
+        const movieList = this.props.movieList;
+        return &lt;MovieList movies={movieList}/&gt;;
+    }
+}
+
+function mapStateToProps(state) {
+    return movieList: state.list
+};
+
+export default connect(mapStateToProps)(MovieListContainer);
+                    </code>
+                </pre>
+
+                <aside class="notes">
+                </aside>
+            </section>
+
+            <section>
+                <pre>
+                    <code class="language-javascript">
+git pull
+cd react-ws/tasks/task-9-redux
+npm run watch
+                    </code>
+                </pre>
+            </section>
+
+            <section>
+                <ol start="3" style="list-style-type: lower-alpha !important">
+                    <li>Dispatch 'SET_INPUT_VALUE' i <code>handleInputChange</code> i MovieListContainer</li>
+                    <li>Dispatch 'ADD_MOVIE' i <code>handleAddMovie</code> i MovieListContainer</li>
+                    <li>Implementer <code>mapStateToProps</code> i MovieListContainer</li>
+                    <li>Send <code>movies</code> og <code>inputValue</code> i render-funksjonen til MovieListContainer</li>
+                    <li>Bonusoppgave: Disable knapp i <code>MovieList</code> dersom tekstfeltet er tomt</li>
+                    <li>Bonusoppgave: Tøm inputValue etter hver film blir lagt til</li>
+                </ol>
+
+                <aside class="notes">
+                </aside>
+            </section>
+
+            <section>
+                <h2>Fordeler og ulemper</h2>
+
+                <ul>
+                    <li class="fragment current-visible" style="font-size: 1.1em !important; list-style-type: none;">😒&nbsp;&nbsp;Må transpileres</li>
+                    <li class="fragment current-visible" style="font-size: 1.1em !important; list-style-type: none;">😱&nbsp;&nbsp;Mange måter å gjøre ting på</li>
+                    <li class="fragment current-visible" style="font-size: 1.1em !important; list-style-type: none;">👾&nbsp;&nbsp;Hva skjer hvis WebComponents tar av?</li>
+                    <li class="fragment current-visible" style="font-size: 1.1em !important; list-style-type: none;">😎&nbsp;&nbsp;Enkelt API</li>
+                    <li class="fragment current-visible" style="font-size: 1.1em !important; list-style-type: none;">😆&nbsp;&nbsp;Høy ytelse</li>
+                    <li class="fragment current-visible" style="font-size: 1.1em !important; list-style-type: none;">😁&nbsp;&nbsp;Skalerer bra</li>
+                    <li class="fragment current-visible" style="font-size: 1.1em !important; list-style-type: none;">😺&nbsp;&nbsp;Stort community</li>
+                    <li class="fragment current-visible" style="font-size: 1.1em !important; list-style-type: none;">🙌&nbsp;&nbsp;JSX&nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;&nbsp;Views er JavaScript&nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;&nbsp;Fail fast</li>
+                    <li class="fragment current-visible" style="font-size: 1.1em !important; list-style-type: none;">💪&nbsp;&nbsp;Høy testbarhet og gjenbrukbarhet</li>
+                </ul>
+
+            </section>
+
+            <section>
+                <h2>Nyttige lenker</h2>
+
+                <ul>
+                    <li><a href="http://redux.js.org">http://redux.js.org</a></li>
+                    <li><a href="https://egghead.io/courses/getting-started-with-redux">https://egghead.io/courses/getting-started-with-redux</a></li>
+                    <li><a href="https://www.youtube.com/watch?v=xsSnOQynTH">https://www.youtube.com/watch?v=xsSnOQynTHs</a></li>
+                    <li><a href="https://rainsoft.io/gentle-explanation-of-this-in-javascript/">https://rainsoft.io/gentle-explanation-of-this-in-javascript/</a></li>
+                </ul>
+
+            </section>
+
+            <section>
+                <h2>React Component Lifecycle</h2>
+                <ul>
+                    <li><a href="https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle">https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle</a></li>
+                </ul>
+
+                <aside class="notes">
+                    Hvis tid
+
+                    legg merke til at noen metoder kalles/ikke kalles "on initial render"
+                </aside>
+            </section>
+
+        </div>
+
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+
+    <script>
+
+    // Full list of configuration options available at:
+    // https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+    transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+    // Optional reveal.js plugins
+    dependencies: [
+    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+    { src: 'plugin/zoom-js/zoom.js', async: true },
+    { src: 'plugin/notes/notes.js', async: true }
+    ]
+    });
+
+    </script>
+
+    <script src="plugin/prism/prism.js"></script>
+    <link rel="stylesheet" href="plugin/prism/prism.css">
+
+</body>
+</html>
